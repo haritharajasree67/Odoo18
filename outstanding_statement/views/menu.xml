@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="action_customer_statement" model="ir.actions.client">
+        <field name="name">CustomerStatement</field>
+        <field name="tag">customer_statement</field>
+    </record>
+    <record id="action_supplier_statement" model="ir.actions.client">
+        <field name="name">Supplier Outstanding Statement</field>
+        <field name="tag">supplier_statement</field>
+        <field name="target">current</field>
+    </record>
+
+    <menuitem id="menu_outstanding_statement"
+              name="Outstanding Statement"
+              parent="account.menu_finance_reports"
+              sequence="15"/>
+    <menuitem id="menu_customer_statement_report"
+              name="Customer Statement"
+              parent="menu_outstanding_statement"
+              action="action_customer_statement"
+              sequence="15"/>
+    <menuitem id="menu_supplier_statement"
+              name="Supplier Statement"
+              parent="menu_outstanding_statement"
+              action="action_supplier_statement"
+              sequence="20"/>
+</odoo>

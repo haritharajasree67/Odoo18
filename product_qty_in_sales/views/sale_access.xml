@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+          <record id="group_order_qty_on_hand" model="res.groups">
+            <field name="name">Quotation On Hand Qty View</field>
+        </record>
+</odoo>

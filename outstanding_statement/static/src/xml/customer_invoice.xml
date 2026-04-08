@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<templates id="customer_statement" xml:space="preserve">
+    <t t-name="CustomerStatement">
+<style>
+    /* AGGRESSIVE OVERRIDE - Force all parent containers to be scrollable */
+    html,
+    body,
+    .o_web_client,
+    .o_action_manager,
+    .o_action_manager .o_action,
+    .o_content {
+        overflow: visible !important;
+        overflow-y: visible !important;
+        overflow-x: hidden !important;
+        height: auto !important;
+        max-height: none !important;
+        min-height: 100vh !important;
+    }
+
+    /* Main container - force it to be taller than viewport */
+    .customer-statement-container {
+        min-height: 200vh !important; /* Force it to be twice viewport height */
+        padding-bottom: 400px !important;
+        margin-bottom: 200px !important;
+        position: relative;
+        background: #fff;
+    }
+
+    /* Table wrapper */
+    .table-responsive-custom {
+        overflow-x: auto;
+        margin-bottom: 50px;
+    }
+
+    /* Buttons area - ensure visibility */
+    .statement-actions {
+        margin-top: 50px !important;
+        margin-bottom: 200px !important;
+        padding: 40px 0 !important;
+        clear: both;
+        position: relative;
+        z-index: 100;
+        background: #fff;
+    }
+
+    .statement-actions .btn {
+        padding: 10px 20px;
+        font-size: 16px;
+    }
+
+    /* Bottom spacer */
+    .bottom-spacer {
+        height: 300px !important;
+        width: 100%;
+        background: transparent;
+    }
+</style>
+
+        <div class="customer-statement-container container-fluid p-4">
+            <div class="row mb-4">
+                <div class="col-12">
+                    <h2 class="text-center mb-4">Customer Outstanding Statement</h2>
+                </div>
+            </div>
+
+            <!-- Filter Section -->
+            <div class="row mb-4">
+               <div class="col-md-3">
+    <label for="customer_search" class="form-label">Select Customer:</label>
+    <div style="position: relative;">
+        <div class="input-group">
+            <input
+                type="text"
+                id="customer_search"
+                class="form-control"
+                placeholder="Search customer..."
+                t-model="state.searchQuery"
+                t-on-input="onSearchInput"
+                t-on-focus="onSearchFocus"
+                t-ref="searchInput"
+                autocomplete="off"
+            />
+            <button
+                class="btn btn-outline-secondary"
+                type="button"
+                t-if="state.selectedCustomer"
+                t-on-click="clearSelection"
+                title="Clear selection">
+                <i class="fa fa-times"/>
+            </button>
+        </div>
+
+        <!-- Dropdown list -->
+        <div
+            t-if="state.showDropdown and state.filteredCustomers.length > 0"
+            t-ref="dropdown"
+            class="dropdown-menu show"
+            style="position: absolute; width: 100%; max-height: 300px; overflow-y: auto; z-index: 1050;">
+            <t t-foreach="state.filteredCustomers" t-as="customer" t-key="customer.id">
+                <button
+                    class="dropdown-item"
+                    type="button"
+                    t-on-click="() => this.selectCustomer(customer)"
+                    t-att-class="{'active': state.selectedCustomer === customer.id}">
+                    <t t-esc="customer.name"/>
+                </button>
+            </t>
+        </div>
+
+        <!-- No results message -->
+        <div
+            t-if="state.showDropdown and state.filteredCustomers.length === 0"
+            class="dropdown-menu show"
+            style="position: absolute; width: 100%; z-index: 1050;">
+            <div class="dropdown-item disabled">No customers found</div>
+        </div>
+    </div>
+</div>
+<!--                <div class="col-md-3">-->
+<!--                    <label for="customer_select" class="form-label">Select Customer:</label>-->
+<!--                    <select id="customer_select" class="form-select" t-on-change="onCustomerChange">-->
+<!--                        <option value="">&#45;&#45; Select Customer &#45;&#45;</option>-->
+<!--                        <t t-foreach="state.customers" t-as="customer" t-key="customer.id">-->
+<!--                            <option t-att-value="customer.id">-->
+<!--                                <t t-esc="customer.name"/>-->
+<!--                            </option>-->
+<!--                        </t>-->
+<!--                    </select>-->
+<!--                </div>-->
+                <div class="col-md-3">
+                    <label for="date_from" class="form-label">From Date:</label>
+                    <input type="date" id="date_from" class="form-control"
+                           t-att-value="state.dateFrom"
+                           t-on-change="onDateFromChange"/>
+                </div>
+                <div class="col-md-3">
+                    <label for="date_to" class="form-label">To Date:</label>
+                    <input type="date" id="date_to" class="form-control"
+                           t-att-value="state.dateTo"
+                           t-on-change="onDateToChange"/>
+                </div>
+                <div class="col-md-3">
+
+                    <label class="form-label d-block"></label><br/>
+                    <button  class="btn btn-primary" t-on-click="loadStatement">
+                        Load Statement
+                    </button>
+                </div>
+            </div>
+
+            <!-- Date Range Display -->
+            <div class="row mb-3" t-if="state.showTable">
+                <div class="col-12">
+                    <p class="text-center text-muted">
+                        Statement Period: <strong><t t-esc="state.formattedDateFrom"/></strong>
+                        to
+                        <strong><t t-esc="state.formattedDateTo"/></strong>
+                    </p>
+                </div>
+            </div>
+
+            <!-- Statement Table -->
+            <div class="row mb-4" t-if="state.showTable">
+                <div class="col-12">
+                    <div class="table-responsive-custom">
+                        <table class="table table-bordered table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th style="width: 15%;">Date</th>
+                                    <th style="width: 20%;">Invoice No</th>
+                                    <th style="width: 20%;" class="text-end">Invoice Amount (BHD)</th>
+                                    <th style="width: 20%;" class="text-end">Received Amount (BHD)</th>
+                                    <th style="width: 25%;" class="text-end">Balance (BHD)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-if="state.statementLines.length > 0">
+                                    <t t-foreach="state.statementLines" t-as="line" t-key="line.id">
+                                        <tr>
+                                            <td><t t-esc="line.date"/></td>
+                                            <td><t t-esc="line.invoice_no"/></td>
+                                            <td class="text-end"><t t-esc="line.invoice_amount"/></td>
+                                            <td class="text-end"><t t-esc="line.received_amount"/></td>
+                                            <td class="text-end"><t t-esc="line.balance"/></td>
+                                        </tr>
+                                    </t>
+                                    <tr class="table-secondary fw-bold">
+                                        <td colspan="2">Total</td>
+                                        <td class="text-end"><t t-esc="state.totalInvoice"/></td>
+                                        <td class="text-end"><t t-esc="state.totalReceived"/></td>
+                                        <td class="text-end"><t t-esc="state.totalBalance"/></td>
+                                    </tr>
+                                </t>
+                                <t t-else="">
+                                    <tr>
+                                        <td colspan="5" class="text-center text-muted py-4">
+                                            No outstanding statements found for the selected period
+                                        </td>
+                                    </tr>
+                                </t>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Print and Export Buttons -->
+            <div class="row statement-actions" t-if="state.showTable and state.statementLines.length > 0">
+                <div class="col-12">
+                    <div class="d-flex gap-3">
+                        <button class="btn btn-success btn-lg" t-on-click="printStatement">
+                            <i class="fa fa-print"/> Print Statement
+                        </button>
+                        <button class="btn btn-info btn-lg" t-on-click="exportToExcel">
+                            <i class="fa fa-file-excel-o"/> Export to Excel
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Large bottom spacer to force scroll -->
+            <div class="bottom-spacer"></div>
+        </div>
+    </t>
+</templates>

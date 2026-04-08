@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Report Action Definition -->
+    <record id="action_customer_statement_report" model="ir.actions.report">
+        <field name="name">Customer Statement</field>
+        <field name="model">account.move</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">outstanding_statement.customer_statement_report</field>
+        <field name="report_file">outstanding_statement.customer_statement_report</field>
+        <field name="binding_model_id" ref="account.model_account_move"/>
+        <field name="binding_type">report</field>
+        <field name="print_report_name">'Customer Statement - %s' % (object.partner_id.name)</field>
+    </record>
+
+    <!-- Report Template -->
+    <template id="customer_statement_report">
+        <t t-call="web.html_container">
+            <t t-call="web.external_layout">
+                <div class="page">
+                    <div class="oe_structure"/>
+
+                    <!-- Header Section -->
+                    <div class="row mb-4">
+                        <div class="col-12 text-center">
+                            <h2>Outstanding Statement</h2>
+                        </div>
+                    </div>
+
+                    <!-- Customer Information -->
+                    <div class="row mb-3">
+                        <div class="col-6">
+                            <strong>Customer:<t t-esc="docs['partner_name']"/></strong>
+                            <div></div>
+                        </div>
+                        <div class="col-6 text-end">
+                            <strong>Statement Period:</strong>
+                            <div>
+                                <t t-esc="docs['date_from']"/> to
+                                <t t-esc="docs['date_to']"/>
+                            </div>
+                        </div>
+                    </div>
+
+
+
+                    <!-- Statement Table -->
+                    <table class="table table-bordered table-sm">
+                        <thead style="background-color: #f8f9fa;">
+                            <tr>
+                                <th style="width: 15%;">Date</th>
+                                <th style="width: 20%;">Invoice No</th>
+                                <th style="width: 20%;" class="text-end">Invoice Amount (BHD)</th>
+                                <th style="width: 20%;" class="text-end">Received Amount (BHD)</th>
+                                <th style="width: 25%;" class="text-end">Balance (BHD)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <t t-if="docs['lines']">
+                                <t t-foreach="docs['lines']" t-as="line">
+                                    <tr>
+                                        <td><t t-esc="line['date']"/></td>
+                                        <td><t t-esc="line['invoice_no']"/></td>
+                                        <td class="text-end"><t t-esc="line['invoice_amount']"/></td>
+                                        <td class="text-end"><t t-esc="line['received_amount']"/></td>
+                                        <td class="text-end"><t t-esc="line['balance']"/></td>
+                                    </tr>
+                                </t>
+                            </t>
+                            <t t-else="">
+                                <tr>
+                                    <td colspan="5" class="text-center">
+                                        No outstanding statements found for the selected period
+                                    </td>
+                                </tr>
+                            </t>
+                        </tbody>
+                        <tfoot style="background-color: #f8f9fa; font-weight: bold;">
+                            <tr>
+                                <td colspan="2">Total</td>
+                                <td class="text-end"><t t-esc="docs['total_invoice']"/></td>
+                                <td class="text-end"><t t-esc="docs['total_received']"/></td>
+                                <td class="text-end"><t t-esc="docs['total_balance']"/></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+
+                    <div class="oe_structure"/>
+                </div>
+            </t>
+        </t>
+    </template>
+</odoo>

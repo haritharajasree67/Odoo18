@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <template id="report_dio_cash_book">
+        <t t-call="web.html_container">
+            <t t-call="web.external_layout">
+                <div class="page">
+                    <h2 style="color:#1b5e20; margin-bottom:4px;">Account Cash Book</h2>
+                    <p style="color:#555; font-size:12px; margin-bottom:16px;">
+                        <t t-if="data.get('date_from')">
+                            From: <strong><t t-esc="data['date_from']"/></strong>
+                        </t>
+                        <t t-if="data.get('date_to')">
+                            &amp;nbsp; To: <strong><t t-esc="data['date_to']"/></strong>
+                        </t>
+                        <t t-if="not data.get('date_from') and not data.get('date_to')">
+                            All Dates
+                        </t>
+                    </p>
+
+                    <t t-foreach="accounts" t-as="account">
+                        <!-- Account header row -->
+                        <table class="table table-sm o_main_table" style="margin-bottom:0; font-size:11px;">
+                            <thead>
+                                <tr style="background:#1b5e20; color:#fff;">
+                                    <th colspan="6" style="padding:5px 8px;">
+                                        <t t-esc="account['code']"/> — <t t-esc="account['name']"/>
+                                    </th>
+                                    <th style="text-align:right; padding:5px 8px; width:100px;">
+                                        <t t-esc="'%.2f' % account['debit']"/>
+                                    </th>
+                                    <th style="text-align:right; padding:5px 8px; width:100px;">
+                                        <t t-esc="'%.2f' % account['credit']"/>
+                                    </th>
+                                    <th style="text-align:right; padding:5px 8px; width:100px;">
+                                        <t t-esc="'%.2f' % account['balance']"/>
+                                    </th>
+                                </tr>
+                                <tr style="background:#e8f5e9; font-size:10px; font-weight:600; color:#333;">
+                                    <th style="padding:4px 8px; width:80px;">Date</th>
+                                    <th style="padding:4px 8px; width:50px;">JRNL</th>
+                                    <th style="padding:4px 8px; width:130px;">Partner</th>
+                                    <th style="padding:4px 8px; width:110px;">Ref</th>
+                                    <th style="padding:4px 8px; width:110px;">Move</th>
+                                    <th style="padding:4px 8px;">Entry Label</th>
+                                    <th style="text-align:right; padding:4px 8px; width:100px;">Debit</th>
+                                    <th style="text-align:right; padding:4px 8px; width:100px;">Credit</th>
+                                    <th style="text-align:right; padding:4px 8px; width:100px;">Balance</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-foreach="account['move_lines']" t-as="line">
+                                    <tr t-att-style="line['lname'] == 'Initial Balance' and 'background:#fffde7; font-style:italic;' or ''">
+                                        <td style="padding:3px 8px; font-size:10px;">
+                                            <t t-esc="line['ldate']"/>
+                                        </td>
+                                        <td style="padding:3px 8px; font-size:10px;">
+                                            <t t-esc="line['lcode']"/>
+                                        </td>
+                                        <td style="padding:3px 8px; font-size:10px;">
+                                            <t t-esc="line['partner_name']"/>
+                                        </td>
+                                        <td style="padding:3px 8px; font-size:10px;">
+                                            <t t-esc="line['lref']"/>
+                                        </td>
+                                        <td style="padding:3px 8px; font-size:10px;">
+                                            <t t-esc="line['move_name']"/>
+                                        </td>
+                                        <td style="padding:3px 8px; font-size:10px;">
+                                            <t t-esc="line['lname']"/>
+                                        </td>
+                                        <td style="text-align:right; padding:3px 8px; font-size:10px;">
+                                            <t t-esc="'%.2f' % line['debit']"/>
+                                        </td>
+                                        <td style="text-align:right; padding:3px 8px; font-size:10px;">
+                                            <t t-esc="'%.2f' % line['credit']"/>
+                                        </td>
+                                        <td t-att-style="'text-align:right; padding:3px 8px; font-size:10px; color:' + ('#c62828' if line['balance'] &lt; 0 else '#2e7d32')">
+                                            <t t-esc="'%.2f' % line['balance']"/>
+                                        </td>
+                                    </tr>
+                                </t>
+                            </tbody>
+                        </table>
+                        <div style="margin-bottom:16px;"/>
+                    </t>
+                </div>
+            </t>
+        </t>
+    </template>
+</odoo>

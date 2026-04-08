@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<templates id="cash_book" xml:space="preserve">
+    <t t-name="CashBook">
+        <div class="o_cb_view">
+
+            <!-- ═══ CONTROL PANEL ═══ -->
+            <div class="o_cb_control_panel">
+
+                <div class="o_cb_cp_title">
+                    <h1 class="o_cb_title">Account Cash Book</h1>
+                </div>
+
+                <div class="o_cb_cp_center">
+                    <div class="o_cb_filter_dropdown_wrap" t-ref="filterWrap">
+                        <button class="o_cb_filter_toggle" t-on-click="onToggleFilters">
+                            <i class="fa fa-filter"/>
+                            Filters
+                            <i t-att-class="state.showFilters ? 'fa fa-caret-up' : 'fa fa-caret-down'"/>
+                        </button>
+
+                        <div t-att-class="'o_cb_filter_drop' + (state.showFilters ? ' o_cb_filter_drop_open' : '')">
+
+                            <!-- Row 1: date + dropdowns + checkbox -->
+                            <div class="o_cb_fd_row">
+                                <div class="o_cb_fd_field">
+                                    <label class="o_cb_fd_label">Start Date</label>
+                                    <input type="date" class="o_cb_fd_input"
+                                           t-att-value="state.date_from"
+                                           placeholder="All dates"
+                                           t-on-change="(e) => this.onFieldChange('date_from', e.target.value)"/>
+                                </div>
+                                <div class="o_cb_fd_field">
+                                    <label class="o_cb_fd_label">End Date</label>
+                                    <input type="date" class="o_cb_fd_input"
+                                           t-att-value="state.date_to"
+                                           placeholder="All dates"
+                                           t-on-change="(e) => this.onFieldChange('date_to', e.target.value)"/>
+                                </div>
+                                <div class="o_cb_fd_field">
+                                    <label class="o_cb_fd_label">Target Moves</label>
+                                    <select class="o_cb_fd_select" t-on-change="(e) => this.onFieldChange('target_move', e.target.value)">
+                                        <option value="posted" t-att-selected="state.target_move === 'posted' ? true : false">Posted Entries</option>
+                                        <option value="all"    t-att-selected="state.target_move === 'all' ? true : false">All Entries</option>
+                                    </select>
+                                </div>
+                                <div class="o_cb_fd_field">
+                                    <label class="o_cb_fd_label">Sort By</label>
+                                    <select class="o_cb_fd_select" t-on-change="(e) => this.onFieldChange('sortby', e.target.value)">
+                                        <option value="sort_date"            t-att-selected="state.sortby === 'sort_date' ? true : false">Date</option>
+                                        <option value="sort_journal_partner" t-att-selected="state.sortby === 'sort_journal_partner' ? true : false">Journal &amp; Partner</option>
+                                    </select>
+                                </div>
+                                <div class="o_cb_fd_field">
+                                    <label class="o_cb_fd_label">Display Accounts</label>
+                                    <select class="o_cb_fd_select" t-on-change="(e) => this.onFieldChange('display_account', e.target.value)">
+                                        <option value="all"      t-att-selected="state.display_account === 'all' ? true : false">All</option>
+                                        <option value="movement" t-att-selected="state.display_account === 'movement' ? true : false">With Movements</option>
+                                        <option value="not_zero" t-att-selected="state.display_account === 'not_zero' ? true : false">Balance Not Zero</option>
+                                    </select>
+                                </div>
+                                <div class="o_cb_fd_field o_cb_fd_check_field">
+                                    <label class="o_cb_fd_check">
+                                        <input type="checkbox"
+                                               t-att-checked="state.initial_balance"
+                                               t-on-change="(e) => this.onFieldChange('initial_balance', e.target.checked)"/>
+                                        Initial Balances
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- Row 2: journals + accounts -->
+                            <div class="o_cb_fd_row o_cb_fd_row_lists">
+                                <div class="o_cb_fd_field o_cb_fd_list_field">
+                                    <label class="o_cb_fd_label">Journals</label>
+                                    <div class="o_cb_fd_checklist">
+                                        <t t-foreach="state.available_journals" t-as="j" t-key="j.id">
+                                            <label class="o_cb_fd_check_item">
+                                                <input type="checkbox"
+                                                       t-att-checked="state.selected_journal_ids.includes(j.id)"
+                                                       t-on-change="(e) => this.onJournalToggle(j.id, e.target.checked)"/>
+                                                <span t-esc="j.name"/>
+                                                <span t-if="j.type === 'cash'" class="o_cb_badge_cash">Cash</span>
+                                            </label>
+                                        </t>
+                                    </div>
+                                </div>
+                                <div class="o_cb_fd_field o_cb_fd_list_field">
+                                    <label class="o_cb_fd_label">Accounts</label>
+                                    <div class="o_cb_fd_checklist">
+                                        <t t-foreach="state.available_accounts" t-as="acc" t-key="acc.id">
+                                            <label class="o_cb_fd_check_item">
+                                                <input type="checkbox"
+                                                       t-att-checked="state.selected_account_ids.includes(acc.id)"
+                                                       t-on-change="(e) => this.onAccountToggle(acc.id, e.target.checked)"/>
+                                                <span t-esc="acc.code + ' — ' + acc.name"/>
+                                            </label>
+                                        </t>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+                <div class="o_cb_cp_right">
+                    <button class="o_cb_action_btn" t-on-click="onPrintXLSX">
+                        <i class="fa fa-download"/> Xlsx
+                    </button>
+                    <button class="o_cb_action_btn" t-on-click="onPrintPDF" t-att-disabled="state.pdfLoading">
+                        <i t-att-class="state.pdfLoading ? 'fa fa-circle-o-notch fa-spin' : 'fa fa-download'"/>
+                        <t t-esc="state.pdfLoading ? 'Generating...' : 'Pdf'"/>
+                    </button>
+                    <button class="o_cb_apply_btn" t-on-click="onApply">
+                        Apply
+                    </button>
+                </div>
+
+            </div>
+
+            <!-- ═══ BODY ═══ -->
+            <div class="o_cb_body">
+
+                <t t-if="state.loading">
+                    <div class="o_cb_loading">
+                        <i class="fa fa-circle-o-notch fa-spin"/>
+                        <span>Loading…</span>
+                    </div>
+                </t>
+
+                <t t-if="!state.loading and state.error">
+                    <div class="o_cb_error">
+                        <i class="fa fa-exclamation-triangle"/>
+                        <span t-esc="state.error"/>
+                    </div>
+                </t>
+
+                <t t-if="!state.loading and !state.error and state.accounts.length > 0">
+                    <div class="o_cb_table_wrap">
+                        <table class="o_cb_table">
+                            <thead>
+                                <tr>
+                                    <th style="width:96px;">Date</th>
+                                    <th style="width:60px;">JRNL</th>
+                                    <th style="width:180px;">Partner</th>
+                                    <th style="width:140px;">Ref</th>
+                                    <th style="width:140px;">Move</th>
+                                    <th>Entry Label</th>
+                                    <th class="o_cb_num" style="width:120px;">Debit</th>
+                                    <th class="o_cb_num" style="width:120px;">Credit</th>
+                                    <th class="o_cb_num" style="width:120px;">Balance</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-foreach="state.accounts" t-as="account" t-key="account.code">
+                                    <tr class="o_cb_account_row">
+                                        <td colspan="6">
+                                            <t t-esc="account.code"/> — <t t-esc="account.name"/>
+                                        </td>
+                                        <td class="o_cb_num"><t t-esc="formatAmount(account.debit)"/></td>
+                                        <td class="o_cb_num"><t t-esc="formatAmount(account.credit)"/></td>
+                                        <td t-att-class="'o_cb_num ' + (account.balance >= 0 ? 'o_cb_pos' : 'o_cb_neg')">
+                                            <t t-esc="formatAmount(account.balance)"/>
+                                        </td>
+                                    </tr>
+                                    <t t-foreach="account.move_lines" t-as="line" t-key="line.lid || line_index">
+                                        <tr t-att-class="line.lname === 'Initial Balance' ? 'o_cb_init_row' : 'o_cb_line_row'">
+                                            <td><t t-esc="line.ldate"/></td>
+                                            <td><t t-esc="line.lcode"/></td>
+                                            <td><t t-esc="line.partner_name"/></td>
+                                            <td><t t-esc="line.lref"/></td>
+                                            <td><t t-esc="line.move_name"/></td>
+                                            <td><t t-esc="line.lname"/></td>
+                                            <td class="o_cb_num"><t t-esc="formatAmount(line.debit)"/></td>
+                                            <td class="o_cb_num"><t t-esc="formatAmount(line.credit)"/></td>
+                                            <td t-att-class="'o_cb_num ' + (line.balance >= 0 ? 'o_cb_pos' : 'o_cb_neg')">
+                                                <t t-esc="formatAmount(line.balance)"/>
+                                            </td>
+                                        </tr>
+                                    </t>
+                                </t>
+                            </tbody>
+                        </table>
+                    </div>
+                </t>
+
+                <t t-if="!state.loading and !state.error and state.accounts.length === 0 and state.hasSearched">
+                    <div class="o_cb_empty">No matching data found!!!</div>
+                </t>
+
+            </div>
+        </div>
+    </t>
+</templates>

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <template id="inherit_pos_session_sales_details" inherit_id="point_of_sale.pos_session_sales_details">
+        <xpath expr="//span[hasclass('badge') and hasclass('bg-light') and hasclass('text-dark')]"
+               position="replace">
+
+
+        </xpath>
+
+        <xpath expr="//span[@t-out='date_start']" position="replace">
+            <span t-out="date_start" t-options="{'widget': 'date'}">-</span>
+        </xpath>
+
+        <!-- Replace date_stop widget -->
+        <xpath expr="//span[@t-out='date_stop']" position="replace">
+
+        </xpath>
+
+        <xpath expr="//div[@class='col-6 text-center']" position="replace">
+            <div class="col-6 text-center">
+                <h2 t-if="state == 'closed' or state == 'opened'" id="daily_report_title">Daily Sales Report
+
+                </h2>
+                <t t-if="session_name">
+                    Session ID:
+                    <span t-out="session_name">987657</span>
+                </t>
+            </div>
+        </xpath>
+
+    </template>
+</odoo>

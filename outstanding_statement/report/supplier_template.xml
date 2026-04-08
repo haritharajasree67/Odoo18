@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <template id="supplier_statement_report_template">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="web.external_layout">
+                    <div class="page">
+                        <div class="oe_structure"/>
+
+                        <!-- Report Header -->
+                        <div class="row mt-4 mb-4">
+                            <div class="col-12 text-center">
+                                <h2>Supplier Outstanding Statement</h2>
+                            </div>
+                        </div>
+
+                        <!-- Supplier Information -->
+                        <div class="row mb-3">
+                            <div class="col-6">
+                                <strong>Supplier:</strong>
+                                <p t-field="partner.name"/>
+                                <p t-if="partner.street" t-field="partner.street"/>
+
+                            </div>
+                            <div class="col-6 text-end">
+                                <strong>Statement Period:</strong>
+                                <p>
+                                    From: <span t-esc="date_from"/><br/>
+                                    To: <span t-esc="date_to"/>
+                                </p>
+
+                            </div>
+                        </div>
+
+                        <!-- Statement Table -->
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <table class="table table-sm table-bordered">
+                                    <thead style="background-color: #f0f0f0;">
+                                        <tr>
+                                            <th style="width: 15%;">Date</th>
+                                            <th style="width: 25%;">Bill No</th>
+                                            <th style="width: 20%; text-align: right;">Bill Amount </th>
+                                            <th style="width: 20%; text-align: right;">Paid Amount</th>
+                                            <th style="width: 20%; text-align: right;">Balance</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <t t-if="statement_lines">
+                                            <tr t-foreach="statement_lines" t-as="line">
+                                                <td><span t-esc="line['date']"/></td>
+                                                <td><span t-esc="line['bill_no']"/></td>
+                                                <td style="text-align: right;"><span t-esc="line['bill_amount']"/></td>
+                                                <td style="text-align: right;"><span t-esc="line['paid_amount']"/></td>
+                                                <td style="text-align: right;"><span t-esc="line['balance']"/></td>
+                                            </tr>
+                                            <!-- Total Row -->
+                                            <tr style="font-weight: bold; background-color: #e9ecef;">
+                                                <td colspan="2">Total</td>
+                                                <td style="text-align: right;"><span t-esc="total_invoice"/></td>
+                                                <td style="text-align: right;"><span t-esc="total_paid"/></td>
+                                                <td style="text-align: right;"><span t-esc="total_balance"/></td>
+                                            </tr>
+                                        </t>
+                                        <t t-else="">
+                                            <tr>
+                                                <td colspan="5" style="text-align: center; padding: 20px;">
+                                                    No outstanding statements found for the selected period
+                                                </td>
+                                            </tr>
+                                        </t>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Summary Section -->
+                        <div class="row mt-4" t-if="statement_lines">
+                            <div class="col-12">
+                                <div class="float-end" style="width: 40%;">
+                                    <table class="table table-sm">
+                                        <tr>
+                                            <td><strong>Total Bill Amount:</strong></td>
+                                            <td class="text-end"><span t-esc="total_invoice"/> BHD</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Total Paid Amount:</strong></td>
+                                            <td class="text-end"><span t-esc="total_paid"/> BHD</td>
+                                        </tr>
+                                        <tr style="font-size: 1.2em; font-weight: bold; background-color: #e9ecef;">
+                                            <td><strong>Total Outstanding:</strong></td>
+                                            <td class="text-end"><span t-esc="total_balance"/> BHD</td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="oe_structure"/>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+
+    <!-- Report Action Definition -->
+    <record id="action_report_supplier_statement" model="ir.actions.report">
+        <field name="name">Supplier Statement</field>
+        <field name="model">res.partner</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">outstanding_statement.supplier_statement_report_template</field>
+        <field name="report_file">outstanding_statement.supplier_statement_report_template</field>
+        <field name="binding_model_id" ref="base.model_res_partner"/>
+        <field name="binding_type">report</field>
+        <field name="print_report_name">'Supplier_Statement_%s' % (object.name)</field>
+    </record>
+</odoo>

@@ -1,0 +1,357 @@
+/* =====================================================
+   Account Bank Book — plain CSS
+   Place: static/src/css/bank_book.css
+   Register in __manifest__.py → web.assets_backend
+   ===================================================== */
+
+.o_bb_view {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background: #f8f9fc;
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    font-size: 13px;
+    color: #2c2c3a;
+}
+
+/* ── Control Panel ─────────────────────────────────── */
+.o_bb_control_panel {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 24px;
+    background: #ffffff;
+    border-bottom: 1px solid #dee2e6;
+    gap: 16px;
+    position: relative;
+    z-index: 50;
+    flex-shrink: 0;
+}
+
+.o_bb_cp_title { flex-shrink: 0; }
+
+.o_bb_title {
+    font-size: 20px;
+    font-weight: 700;
+    color: #1a1a2e;
+    margin: 0;
+    line-height: 1.2;
+}
+
+.o_bb_cp_center {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    position: static;
+}
+
+.o_bb_cp_right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+/* ── Filter toggle button ──────────────────────────── */
+.o_bb_filter_dropdown_wrap {
+    position: relative;
+}
+
+.o_bb_filter_toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 6px 14px;
+    background: #ffffff;
+    border: 1px solid #ced4da;
+    border-radius: 5px;
+    font-size: 13px;
+    font-weight: 500;
+    color: #495057;
+    cursor: pointer;
+    white-space: nowrap;
+}
+.o_bb_filter_toggle:hover { background: #f8f9fa; border-color: #adb5bd; }
+.o_bb_filter_toggle:focus { outline: none; }
+.o_bb_filter_toggle i { font-size: 12px; }
+
+/* ── Filter dropdown ───────────────────────────────── */
+.o_bb_filter_drop {
+    display: none;
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 50%;
+    transform: translateX(-50%);
+    width: 900px;
+    background: #ffffff;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    box-shadow: 0 8px 24px rgba(0,0,0,.10);
+    padding: 16px 20px 20px;
+    z-index: 9999;
+}
+.o_bb_filter_drop.o_bb_filter_drop_open {
+    display: block;
+    animation: bbFdIn .14s ease-out;
+}
+@keyframes bbFdIn {
+    from { opacity: 0; transform: translateX(-50%) translateY(-6px); }
+    to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+/* Row 1: all fields in one horizontal line */
+.o_bb_fd_row {
+    display: flex;
+    flex-direction: row;
+    gap: 12px;
+    align-items: flex-end;
+    margin-bottom: 14px;
+    width: 100%;
+}
+.o_bb_fd_row:last-child { margin-bottom: 0; }
+
+/* Row 2: journals + accounts side by side */
+.o_bb_fd_row_lists {
+    align-items: flex-start;
+}
+
+.o_bb_fd_field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex: 1;
+    min-width: 0;
+}
+.o_bb_fd_check_field {
+    justify-content: flex-end;
+    padding-bottom: 2px;
+    flex: 0.8;
+}
+.o_bb_fd_list_field {
+    flex: 1;
+}
+
+.o_bb_fd_label {
+    font-size: 10.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #8f95a3;
+    white-space: nowrap;
+}
+
+.o_bb_fd_input,
+.o_bb_fd_select {
+    width: 100%;
+    padding: 6px 10px;
+    font-size: 13px;
+    color: #2c2c3a;
+    background: #ffffff;
+    border: 1px solid #ced4da;
+    border-radius: 5px;
+    outline: none;
+    font-family: inherit;
+    box-sizing: border-box;
+}
+.o_bb_fd_input:focus,
+.o_bb_fd_select:focus {
+    border-color: #875a7b;
+    box-shadow: 0 0 0 2px rgba(135,90,123,.12);
+}
+.o_bb_fd_select { cursor: pointer; }
+
+.o_bb_fd_check {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: #495057;
+    cursor: pointer;
+    white-space: nowrap;
+    padding-bottom: 6px;
+}
+.o_bb_fd_check input[type="checkbox"] {
+    width: 14px;
+    height: 14px;
+    accent-color: #875a7b;
+    cursor: pointer;
+}
+
+/* Checklist box */
+.o_bb_fd_checklist {
+    border: 1px solid #ced4da;
+    border-radius: 5px;
+    background: #fafafa;
+    max-height: 150px;
+    overflow-y: auto;
+    padding: 6px 4px;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    box-sizing: border-box;
+}
+.o_bb_fd_checklist::-webkit-scrollbar { width: 4px; }
+.o_bb_fd_checklist::-webkit-scrollbar-thumb { background: #ced4da; border-radius: 2px; }
+
+.o_bb_fd_check_item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 8px;
+    font-size: 12.5px;
+    color: #495057;
+    cursor: pointer;
+    border-radius: 3px;
+    width: 33.33%;
+    box-sizing: border-box;
+    white-space: nowrap;
+}
+.o_bb_fd_check_item:hover { background: #f0f0f8; color: #875a7b; }
+.o_bb_fd_check_item input[type="checkbox"] {
+    width: 13px;
+    height: 13px;
+    accent-color: #875a7b;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+.o_bb_fd_check_item span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 12px;
+}
+
+/* ── Right action buttons ──────────────────────────── */
+.o_bb_action_btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 14px;
+    background: #ffffff;
+    border: 1px solid #ced4da;
+    border-radius: 5px;
+    font-size: 13px;
+    font-weight: 500;
+    color: #495057;
+    cursor: pointer;
+}
+.o_bb_action_btn:hover { background: #f8f9fa; border-color: #adb5bd; }
+.o_bb_action_btn:focus { outline: none; }
+.o_bb_action_btn i { font-size: 12px; }
+
+.o_bb_apply_btn {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 18px;
+    background: #ffffff;
+    border: 2px solid #875a7b;
+    border-radius: 5px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #875a7b;
+    cursor: pointer;
+}
+.o_bb_apply_btn:hover { background: #875a7b; color: #ffffff; }
+.o_bb_apply_btn:focus { outline: none; }
+
+/* ── Report body ────────────────────────────────────── */
+.o_bb_body {
+    flex: 1;
+    padding: 24px;
+    overflow-y: auto;
+}
+
+.o_bb_loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 80px;
+    color: #8f95a3;
+    font-size: 14px;
+}
+.o_bb_loading i { font-size: 20px; color: #875a7b; }
+
+.o_bb_error {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 16px;
+    background: #fff2f2;
+    border: 1px solid #f5c6c6;
+    border-radius: 6px;
+    color: #c0392b;
+    font-size: 13px;
+}
+
+.o_bb_empty {
+    text-align: center;
+    padding: 40px 20px;
+    color: #8f95a3;
+    font-size: 13px;
+}
+
+/* ── Table ─────────────────────────────────────────── */
+.o_bb_table_wrap {
+    background: #ffffff;
+    border-radius: 6px;
+    border: 1px solid #dee2e6;
+    overflow: hidden;
+    overflow-x: auto;
+}
+
+.o_bb_table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+}
+
+/* Header — white bg, bold, thick bottom border only */
+.o_bb_table thead tr { background: #ffffff; }
+.o_bb_table thead th {
+    padding: 12px 14px 10px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #2c2c3a;
+    text-align: left;
+    border-bottom: 2px solid #2c2c3a;
+    white-space: nowrap;
+}
+.o_bb_table thead th.o_bb_num { text-align: right; }
+
+/* Account summary row */
+.o_bb_table tbody .o_bb_account_row td {
+    padding: 8px 14px;
+    background: #f2f2f2;
+    font-weight: 700;
+    font-size: 13px;
+    color: #1a1a2e;
+    border-top: 1px solid #dee2e6;
+    border-bottom: 1px solid #dee2e6;
+}
+
+/* Regular line */
+.o_bb_table tbody .o_bb_line_row td {
+    padding: 7px 14px;
+    color: #495057;
+    border-bottom: 1px solid #f0f2f7;
+    vertical-align: middle;
+}
+.o_bb_table tbody .o_bb_line_row:hover td { background: #fafbfd; }
+.o_bb_table tbody .o_bb_line_row:last-child td { border-bottom: none; }
+
+/* Initial balance */
+.o_bb_table tbody .o_bb_init_row td {
+    padding: 7px 14px;
+    background: #fffbf0;
+    color: #7a5800;
+    font-style: italic;
+    border-bottom: 1px solid #f0f2f7;
+}
+
+.o_bb_table td.o_bb_num {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+}
+
+.o_bb_pos { color: #1a7a4a !important; font-weight: 600; }
+.o_bb_neg { color: #c0392b !important; font-weight: 600; }

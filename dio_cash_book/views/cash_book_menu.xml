@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <!-- ── Client action that loads the OWL CashBook component ── -->
+    <record id="action_cash_book_owl" model="ir.actions.client">
+        <field name="name">Cash Book</field>
+        <field name="tag">cash_book</field>
+    </record>
+        <menuitem id="menu_daily_cash_view"
+              name="Cash Report View"
+              parent="account.menu_finance_reports"
+              sequence="16"/>
+
+    <!-- ── Menu entry under Accounting ► Reporting ── -->
+    <menuitem
+        id="menu_cash_book_root"
+        name="Cash Book view"
+        parent="menu_daily_cash_view"
+        action="action_cash_book_owl"
+        sequence="25"
+    />
+</odoo>

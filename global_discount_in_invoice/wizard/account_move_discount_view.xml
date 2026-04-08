@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+<record id="view_invoice_discount_wizard" model="ir.ui.view">
+    <field name="name">account.move.discount.form</field>
+    <field name="model">account.move.discount</field>
+    <field name="arch" type="xml">
+        <form string="Global Discount">
+            <group>
+                <field name="discount_type"/>
+                <field name="discount_value"/>
+            </group>
+            <footer>
+                <button name="action_apply_discount" type="object"
+                        string="Apply" class="btn-primary"/>
+                <button string="Cancel" special="cancel"/>
+            </footer>
+        </form>
+    </field>
+</record>
+
+</odoo>

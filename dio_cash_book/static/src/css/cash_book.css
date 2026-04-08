@@ -1,0 +1,276 @@
+/* ═══════════════════════════════════════════════════════════
+   DIO Cash Book — styles
+   Green accent palette to distinguish from the blue Bank Book
+   ═══════════════════════════════════════════════════════════ */
+
+/* ── Layout ───────────────────────────────────────────────── */
+.o_cb_view {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background: #f4f6f8;
+    font-family: 'Roboto', sans-serif;
+}
+
+/* ── Control Panel ────────────────────────────────────────── */
+.o_cb_control_panel {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 20px;
+    background: #fff;
+    border-bottom: 1px solid #d0d7de;
+    flex-wrap: wrap;
+    position: relative;
+    z-index: 100;
+}
+
+.o_cb_cp_title { flex: 0 0 auto; }
+.o_cb_title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #1b5e20;
+    margin: 0;
+    white-space: nowrap;
+}
+
+.o_cb_cp_center { flex: 1 1 auto; display: flex; justify-content: center; }
+.o_cb_cp_right  { flex: 0 0 auto; display: flex; gap: 8px; align-items: center; }
+
+/* ── Filter toggle button ─────────────────────────────────── */
+.o_cb_filter_dropdown_wrap { position: relative; }
+
+.o_cb_filter_toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border: 1px solid #2e7d32;
+    border-radius: 6px;
+    background: #fff;
+    color: #2e7d32;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 0.875rem;
+    transition: background 0.15s, color 0.15s;
+}
+.o_cb_filter_toggle:hover { background: #e8f5e9; }
+
+/* ── Filter dropdown panel ────────────────────────────────── */
+.o_cb_filter_drop {
+    display: none;
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 50%;
+    transform: translateX(-50%);
+    min-width: 820px;
+    background: #fff;
+    border: 1px solid #c8e6c9;
+    border-radius: 10px;
+    box-shadow: 0 8px 28px rgba(0,0,0,0.12);
+    padding: 18px 20px;
+    z-index: 9999;
+}
+.o_cb_filter_drop_open { display: block; }
+
+/* ── Filter rows ──────────────────────────────────────────── */
+.o_cb_fd_row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    align-items: flex-end;
+    margin-bottom: 14px;
+}
+.o_cb_fd_row:last-child { margin-bottom: 0; }
+.o_cb_fd_row_lists { align-items: flex-start; }
+
+.o_cb_fd_field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex: 1 1 140px;
+}
+.o_cb_fd_list_field { flex: 1 1 260px; }
+.o_cb_fd_check_field { flex: 0 0 auto; justify-content: flex-end; padding-bottom: 4px; }
+
+.o_cb_fd_label {
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: #555;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.o_cb_fd_input,
+.o_cb_fd_select {
+    border: 1px solid #c8e6c9;
+    border-radius: 5px;
+    padding: 5px 8px;
+    font-size: 0.85rem;
+    background: #fff;
+    color: #333;
+    outline: none;
+    transition: border-color 0.15s;
+}
+.o_cb_fd_input:focus,
+.o_cb_fd_select:focus { border-color: #2e7d32; }
+
+/* ── Checkbox list ────────────────────────────────────────── */
+.o_cb_fd_checklist {
+    max-height: 160px;
+    overflow-y: auto;
+    border: 1px solid #c8e6c9;
+    border-radius: 5px;
+    padding: 6px 8px;
+    background: #fafffe;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+.o_cb_fd_check_item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.82rem;
+    color: #333;
+    cursor: pointer;
+    padding: 2px 4px;
+    border-radius: 4px;
+    transition: background 0.1s;
+}
+.o_cb_fd_check_item:hover { background: #e8f5e9; }
+
+.o_cb_fd_check {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #333;
+    cursor: pointer;
+}
+
+/* ── Cash journal badge ───────────────────────────────────── */
+.o_cb_badge_cash {
+    font-size: 0.65rem;
+    background: #c8e6c9;
+    color: #1b5e20;
+    border-radius: 3px;
+    padding: 1px 5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+/* ── Action buttons ───────────────────────────────────────── */
+.o_cb_action_btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border: 1px solid #2e7d32;
+    border-radius: 6px;
+    background: #fff;
+    color: #2e7d32;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 0.875rem;
+    transition: background 0.15s, color 0.15s;
+}
+.o_cb_action_btn:hover { background: #e8f5e9; }
+
+.o_cb_apply_btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 18px;
+    border: none;
+    border-radius: 6px;
+    background: #2e7d32;
+    color: #fff;
+    font-weight: 700;
+    cursor: pointer;
+    font-size: 0.875rem;
+    transition: background 0.15s;
+}
+.o_cb_apply_btn:hover { background: #1b5e20; }
+
+/* ── Body ─────────────────────────────────────────────────── */
+.o_cb_body {
+    flex: 1;
+    overflow: auto;
+    padding: 20px;
+}
+
+/* ── States ───────────────────────────────────────────────── */
+.o_cb_loading,
+.o_cb_error,
+.o_cb_empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 60px 20px;
+    font-size: 1.05rem;
+    color: #666;
+}
+.o_cb_error { color: #c62828; }
+
+/* ── Table ────────────────────────────────────────────────── */
+.o_cb_table_wrap {
+    overflow-x: auto;
+    border-radius: 10px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+}
+
+.o_cb_table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #fff;
+    font-size: 0.85rem;
+}
+
+.o_cb_table thead tr {
+    background:lightblue;
+    color: #374151;
+}
+.o_cb_table thead th {
+    padding: 10px 12px;
+    text-align: left;
+    font-weight: 600;
+    white-space: nowrap;
+}
+.o_cb_table thead th.o_cb_num { text-align: right; }
+
+/* Account summary row */
+.o_cb_account_row td {
+    background: lightgoldenrodyellow;
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: #1b5e20;
+    padding: 8px 12px;
+    border-bottom: 1px solid #c8e6c9;
+}
+
+/* Regular move line */
+.o_cb_line_row td {
+    padding: 6px 12px;
+    border-bottom: 1px solid #f0f0f0;
+    color: #333;
+}
+.o_cb_line_row:hover td { background: #f1f8e9; }
+
+/* Initial balance row */
+.o_cb_init_row td {
+    padding: 6px 12px;
+    border-bottom: 1px solid #f0f0f0;
+    color: #555;
+    font-style: italic;
+    background: #fffde7;
+}
+.o_cb_init_row:hover td { background: #fff9c4; }
+
+/* Numeric cells */
+.o_cb_num { text-align: right !important; font-variant-numeric: tabular-nums; }
+.o_cb_pos { color: #2e7d32 !important; }
+.o_cb_neg { color: #c62828 !important; }

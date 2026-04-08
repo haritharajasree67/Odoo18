@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+ <record id="action_report_dio_bank_book" model="ir.actions.report">
+        <field name="name">Bank Book</field>
+        <field name="model">account.bankbook.report</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">dio_bank_book.report_dio_bank_book</field>
+        <field name="report_file">dio_bank_book.report_dio_bank_book</field>
+        <field name="print_report_name">'Bank_Book'</field>
+     <field name="paperformat_id" ref="dio_bank_book.paperformat_bank_book_custom"/>
+
+    </record>
+
+</odoo>

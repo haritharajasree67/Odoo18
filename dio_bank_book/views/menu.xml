@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="action_bank_book" model="ir.actions.client">
+        <field name="name">BankBook</field>
+        <field name="tag">bank_book</field>
+    </record>
+
+    <menuitem id="menu_daily_report_view"
+              name="Bank Report View"
+              parent="account.menu_finance_reports"
+              sequence="16"/>
+    <menuitem id="menu_bank_book_report"
+              name="Bank Book"
+              parent="menu_daily_report_view"
+              action="action_bank_book"
+              sequence="16"/>
+</odoo>

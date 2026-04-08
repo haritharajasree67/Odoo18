@@ -1,0 +1,2 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+global_discount_in_invoice.access_account_move_discount,access_account_move_discount,global_discount_in_invoice.model_account_move_discount,base.group_user,1,1,1,1

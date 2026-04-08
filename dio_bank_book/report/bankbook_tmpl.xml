@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+  <template id="report_dio_bank_book">
+        <t t-call="web.html_container">
+            <div class="article" style="padding: 16px;">
+
+                <!-- Header -->
+                <div style="margin-bottom:12px; border-bottom:2px solid #1a1a2e; padding-bottom:8px;">
+                    <h2 style="margin:0; color:#1a1a2e; font-size:18px;">Account Bank Book</h2>
+                    <p style="margin:4px 0 0; color:#555; font-size:11px;">
+                        <t t-if="data.get('date_from')">
+                            From: <strong><t t-esc="data['date_from']"/></strong>
+                        </t>
+                        <t t-if="data.get('date_to')">
+                            &#160;&#160;To: <strong><t t-esc="data['date_to']"/></strong>
+                        </t>
+                        <t t-if="not data.get('date_from') and not data.get('date_to')">
+                            <strong>All Dates</strong>
+                        </t>
+                        &#160;&#160;|&#160;&#160;
+                        Target: <strong>
+                            <t t-if="data.get('target_move') == 'all'">All Entries</t>
+                            <t t-else="">Posted Entries</t>
+                        </strong>
+                    </p>
+                </div>
+
+                <!-- Account tables -->
+                <t t-if="accounts">
+                    <t t-foreach="accounts" t-as="account">
+                        <table style="width:100%; border-collapse:collapse; margin-bottom:20px; font-size:10px;">
+                            <!-- Account summary row -->
+                            <tr style="background:#e8eaf6;">
+                                <td colspan="6" style="padding:4px 6px; font-weight:bold; font-size:11px; border:1px solid #ccc;">
+                                    <t t-esc="account['code']"/> &#8212; <t t-esc="account['name']"/>
+                                </td>
+                                <td style="padding:4px 6px; font-weight:bold; text-align:right; border:1px solid #ccc;">
+                                    <t t-esc="'%.2f' % (account.get('debit') or 0)"/>
+                                </td>
+                                <td style="padding:4px 6px; font-weight:bold; text-align:right; border:1px solid #ccc;">
+                                    <t t-esc="'%.2f' % (account.get('credit') or 0)"/>
+                                </td>
+                                <td t-att-style="'padding:4px 6px; font-weight:bold; text-align:right; border:1px solid #ccc; color:' + ('#2e7d32' if (account.get('balance') or 0) >= 0 else '#c62828')">
+                                    <t t-esc="'%.2f' % (account.get('balance') or 0)"/>
+                                </td>
+                            </tr>
+                            <!-- Column headers -->
+                            <tr style="background:#1a1a2e; color:#fff;">
+                                <th style="padding:4px 6px; border:1px solid #333; width:80px;">Date</th>
+                                <th style="padding:4px 6px; border:1px solid #333; width:45px;">JRNL</th>
+                                <th style="padding:4px 6px; border:1px solid #333; width:120px;">Partner</th>
+                                <th style="padding:4px 6px; border:1px solid #333; width:100px;">Ref</th>
+                                <th style="padding:4px 6px; border:1px solid #333; width:100px;">Move</th>
+                                <th style="padding:4px 6px; border:1px solid #333;">Entry Label</th>
+                                <th style="padding:4px 6px; border:1px solid #333; width:80px; text-align:right;">Debit</th>
+                                <th style="padding:4px 6px; border:1px solid #333; width:80px; text-align:right;">Credit</th>
+                                <th style="padding:4px 6px; border:1px solid #333; width:80px; text-align:right;">Balance</th>
+                            </tr>
+                            <!-- Move lines -->
+                            <t t-foreach="account.get('move_lines', [])" t-as="line">
+                                <tr t-att-style="'background:#fff9c4; font-style:italic;' if line.get('lname') == 'Initial Balance' else 'background:#fff;'">
+                                    <td style="padding:3px 6px; border:1px solid #ddd;"><t t-esc="line.get('ldate', '')"/></td>
+                                    <td style="padding:3px 6px; border:1px solid #ddd;"><t t-esc="line.get('lcode', '')"/></td>
+                                    <td style="padding:3px 6px; border:1px solid #ddd;"><t t-esc="line.get('partner_name', '')"/></td>
+                                    <td style="padding:3px 6px; border:1px solid #ddd;"><t t-esc="line.get('lref', '')"/></td>
+                                    <td style="padding:3px 6px; border:1px solid #ddd;"><t t-esc="line.get('move_name', '')"/></td>
+                                    <td style="padding:3px 6px; border:1px solid #ddd;"><t t-esc="line.get('lname', '')"/></td>
+                                    <td style="padding:3px 6px; border:1px solid #ddd; text-align:right;">
+                                        <t t-esc="'%.2f' % (line.get('debit') or 0)"/>
+                                    </td>
+                                    <td style="padding:3px 6px; border:1px solid #ddd; text-align:right;">
+                                        <t t-esc="'%.2f' % (line.get('credit') or 0)"/>
+                                    </td>
+                                    <td t-att-style="'padding:3px 6px; border:1px solid #ddd; text-align:right; color:' + ('#2e7d32' if (line.get('balance') or 0) >= 0 else '#c62828')">
+                                        <t t-esc="'%.2f' % (line.get('balance') or 0)"/>
+                                    </td>
+                                </tr>
+                            </t>
+                        </table>
+                    </t>
+                </t>
+
+                <t t-else="">
+                    <p style="color:#888;">No data found for the selected filters.</p>
+                </t>
+
+            </div>
+        </t>
+    </template>
+</odoo>

@@ -1,0 +1,248 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<templates id="supplier_statement" xml:space="preserve">
+    <t t-name="SupplierStatement">
+<style>
+    /* AGGRESSIVE OVERRIDE - Force all parent containers to be scrollable */
+    html,
+    body,
+    .o_web_client,
+    .o_action_manager,
+    .o_action_manager .o_action,
+    .o_content {
+        overflow: visible !important;
+        overflow-y: visible !important;
+        overflow-x: hidden !important;
+        height: auto !important;
+        max-height: none !important;
+        min-height: 100vh !important;
+    }
+
+    /* Main container - force it to be taller than viewport */
+    .supplier-statement-container {
+        min-height: 200vh !important; /* Force it to be twice viewport height */
+        padding-bottom: 400px !important;
+        margin-bottom: 200px !important;
+        position: relative;
+        background: #fff;
+    }
+
+    /* Table wrapper */
+    .table-responsive-custom {
+        overflow-x: auto;
+        margin-bottom: 50px;
+    }
+
+    /* Buttons area - ensure visibility */
+    .statement-actions {
+        margin-top: 50px !important;
+        margin-bottom: 200px !important;
+        padding: 40px 0 !important;
+        clear: both;
+        position: relative;
+        z-index: 100;
+        background: #fff;
+    }
+
+    .statement-actions .btn {
+        padding: 10px 20px;
+        font-size: 16px;
+    }
+
+    /* Bottom spacer */
+    .bottom-spacer {
+        height: 300px !important;
+        width: 100%;
+        background: transparent;
+    }
+
+    .supplier-search-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+/* Input */
+.supplier-search-input {
+    width: 100%;
+    height: 38px;
+    padding: 6px 10px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+/* Dropdown container */
+.supplier-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    background: #fff;
+    border: 1px solid #ced4da;
+    border-top: none;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    max-height: 260px;
+    overflow-y: auto;
+}
+
+/* Dropdown item */
+.supplier-dropdown-item {
+    padding: 8px 12px;
+    font-size: 14px;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+/* Hover effect (Odoo-like) */
+.supplier-dropdown-item:hover {
+    background-color: #e9f2ff;
+}
+
+/* Empty state */
+.supplier-dropdown-empty {
+    padding: 10px;
+    color: #888;
+    font-style: italic;
+}
+</style>
+
+        <div class="supplier-statement-container container-fluid p-4">
+            <div class="row mb-4">
+                <div class="col-12">
+                    <h2 class="text-center mb-4">Supplier Outstanding Statement</h2>
+                </div>
+            </div>
+
+            <!-- Filter Section -->
+            <div class="row mb-4">
+                <div class="col-md-3">
+                    <label for="supplier_search" class="form-label">Select Supplier:</label>
+                    <div class="supplier-search-wrapper">
+    <input
+            type="text"
+            id="supplier_search"
+            class="supplier-search-input"
+            t-att-class="{'dropdown-open': state.showDropdown}"
+            placeholder="Type at least 2 characters to search..."
+            t-att-value="state.searchQuery"
+            t-on-input="onSearchInput"
+            t-on-focus="onSearchFocus"
+            t-ref="searchInput"
+            autocomplete="off"
+    />
+
+                        <div class="supplier-dropdown" t-if="state.showDropdown" t-ref="dropdown">
+        <t t-if="state.filteredSuppliers.length">
+            <t t-foreach="state.filteredSuppliers" t-as="supplier" t-key="supplier.id">
+                <div class="supplier-dropdown-item"
+                     t-on-click="() => this.selectSupplier(supplier)">
+                    <t t-esc="supplier.name"/>
+                </div>
+            </t>
+        </t>
+                            <t t-else="">
+            <div class="supplier-dropdown-empty">
+                No suppliers found
+            </div>
+        </t>
+    </div>
+</div>
+                </div>
+                <div class="col-md-3">
+                    <label for="date_from" class="form-label">From Date:</label>
+                    <input type="date" id="date_from" class="form-control"
+                           t-att-value="state.dateFrom"
+                           t-on-change="onDateFromChange"/>
+                </div>
+                <div class="col-md-3">
+                    <label for="date_to" class="form-label">To Date:</label>
+                    <input type="date" id="date_to" class="form-control"
+                           t-att-value="state.dateTo"
+                           t-on-change="onDateToChange"/>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label d-block"></label>
+                    <br/>
+                    <button class="btn btn-primary" t-on-click="loadStatement">
+                        Load Statement
+                    </button>
+                </div>
+            </div>
+
+            <!-- Date Range Display -->
+            <div class="row mb-3" t-if="state.showTable">
+                <div class="col-12">
+                    <p class="text-center text-muted">
+                        Statement Period: <strong><t t-esc="state.formattedDateFrom"/></strong>
+                        to
+                        <strong><t t-esc="state.formattedDateTo"/></strong>
+                    </p>
+                </div>
+            </div>
+
+            <!-- Statement Table -->
+            <div class="row mb-4" t-if="state.showTable">
+                <div class="col-12">
+                    <div class="table-responsive-custom">
+                        <table class="table table-bordered table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th style="width: 15%;">Date</th>
+                                    <th style="width: 20%;">Bill No</th>
+                                    <th style="width: 20%;" class="text-end">Bill Amount (BHD)</th>
+                                    <th style="width: 20%;" class="text-end">Paid Amount (BHD)</th>
+                                    <th style="width: 25%;" class="text-end">Balance (BHD)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-if="state.statementLines.length > 0">
+                                    <t t-foreach="state.statementLines" t-as="line" t-key="line.id">
+                                        <tr>
+                                            <td><t t-esc="line.date"/></td>
+                                            <td><t t-esc="line.bill_no"/></td>
+                                            <td class="text-end"><t t-esc="line.bill_amount"/></td>
+                                            <td class="text-end"><t t-esc="line.paid_amount"/></td>
+                                            <td class="text-end"><t t-esc="line.balance"/></td>
+                                        </tr>
+                                    </t>
+                                    <tr class="table-secondary fw-bold">
+                                        <td colspan="2">Total</td>
+                                        <td class="text-end"><t t-esc="state.totalInvoice"/></td>
+                                        <td class="text-end"><t t-esc="state.totalPaid"/></td>
+                                        <td class="text-end"><t t-esc="state.totalBalance"/></td>
+                                    </tr>
+                                </t>
+                                <t t-else="">
+                                    <tr>
+                                        <td colspan="5" class="text-center text-muted py-4">
+                                            No outstanding statements found for the selected period
+                                        </td>
+                                    </tr>
+                                </t>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Print and Export Buttons -->
+            <div class="row statement-actions" t-if="state.showTable and state.statementLines.length > 0">
+                <div class="col-12">
+                    <div class="d-flex gap-3">
+                        <button class="btn btn-success btn-lg" t-on-click="printStatement">
+                            <i class="fa fa-print"/>
+                            Print Statement
+                        </button>
+                        <button class="btn btn-info btn-lg" t-on-click="exportToExcel">
+                            <i class="fa fa-file-excel-o"/>
+                            Export to Excel
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Large bottom spacer to force scroll -->
+            <div class="bottom-spacer"></div>
+        </div>
+    </t>
+</templates>
