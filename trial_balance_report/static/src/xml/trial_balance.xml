@@ -1,0 +1,388 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<templates id="trial_balance_dynamic_report" xml:space="preserve">
+    <t t-name="CustomTrialBalance">
+        <div class="o_trial_balance_report">
+
+            <!-- ── Top Header ───────────────────────────── -->
+            <div class="tb_header">
+                <div class="tb_title_row">
+                    <span class="tb_icon">📊</span>
+                    <h1 class="tb_title">Trial Balance</h1>
+                    <t t-if="state.applied">
+                        <span class="tb_date_badge" t-esc="appliedDateLabel"/>
+                    </t>
+                    <t t-if="hasActiveFilters">
+                        <span class="tb_active_dot" title="Filters active">●</span>
+                    </t>
+                </div>
+
+                <div class="tb_controls">
+                    <button class="tb_btn tb_btn_filter" t-on-click="toggleFilters">
+                        <span>⚙</span>
+                        <t t-if="state.showFilters">Hide Filters</t>
+                        <t t-else="">Filters</t>
+                        <t t-if="hasActiveFilters"><span class="tb_filter_badge">●</span></t>
+                    </button>
+                    <button class="tb_btn tb_btn_xlsx"
+                            t-on-click="downloadXlsx"
+                            t-att-disabled="state.exporting">
+                        <t t-if="state.exporting">⏳</t>
+                        <t t-else="">⬇</t>
+                        XLSX
+                    </button>
+                    <button class="tb_btn tb_btn_pdf"
+                            t-on-click="downloadPdf"
+                            t-att-disabled="state.exporting">
+                        <t t-if="state.exporting">⏳</t>
+                        <t t-else="">⬇</t>
+                        PDF
+                    </button>
+                </div>
+            </div>
+
+            <!-- ── Filter Panel ─────────────────────────── -->
+            <div t-if="state.showFilters" class="tb_filter_panel">
+                <div class="tb_filter_panel_inner">
+
+                    <!-- Row 1: Dates + Range + Target -->
+                    <div class="tb_filter_row">
+                        <div class="tb_filter_field">
+                            <label class="tb_filter_label">Date From</label>
+                            <input type="date" class="tb_filter_input tb_date_input"
+                                   t-att-value="state.filters.dateFrom"
+                                   t-on-change="(ev) => this.onFilterChange('dateFrom', ev)"/>
+                        </div>
+                        <div class="tb_filter_field">
+                            <label class="tb_filter_label">Date To</label>
+                            <input type="date" class="tb_filter_input tb_date_input"
+                                   t-att-value="state.filters.dateTo"
+                                   t-on-change="(ev) => this.onFilterChange('dateTo', ev)"/>
+                        </div>
+                        <div class="tb_filter_field">
+                            <label class="tb_filter_label">Date Range</label>
+                            <div class="tb_select_wrapper">
+                                <select class="tb_select" t-on-change="(ev) => this.onFilterChange('dateRange', ev)">
+                                    <option value="this_year"    t-att-selected="state.filters.dateRange === 'this_year'">This Financial Year</option>
+                                    <option value="last_year"    t-att-selected="state.filters.dateRange === 'last_year'">Last Financial Year</option>
+                                    <option value="this_quarter" t-att-selected="state.filters.dateRange === 'this_quarter'">This Quarter</option>
+                                    <option value="this_month"   t-att-selected="state.filters.dateRange === 'this_month'">This Month</option>
+                                    <option value="custom"       t-att-selected="state.filters.dateRange === 'custom'">Custom</option>
+                                </select>
+                                <span class="tb_select_arrow">▾</span>
+                            </div>
+                        </div>
+                        <div class="tb_filter_field">
+                            <label class="tb_filter_label">Target Moves</label>
+                            <div class="tb_select_wrapper">
+                                <select class="tb_select" t-on-change="(ev) => this.onFilterChange('targetMoves', ev)">
+                                    <option value="posted" t-att-selected="state.filters.targetMoves === 'posted'">Posted Only</option>
+                                    <option value="all"    t-att-selected="state.filters.targetMoves === 'all'">All Entries</option>
+                                    <option value="draft"  t-att-selected="state.filters.targetMoves === 'draft'">Draft Only</option>
+                                </select>
+                                <span class="tb_select_arrow">▾</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Row 2: Display + Group + Compare dates -->
+                    <div class="tb_filter_row">
+                        <div class="tb_filter_field">
+                            <label class="tb_filter_label">Display Accounts</label>
+                            <div class="tb_select_wrapper">
+                                <select class="tb_select" t-on-change="(ev) => this.onFilterChange('displayAccounts', ev)">
+                                    <option value="non_zero"         t-att-selected="state.filters.displayAccounts === 'non_zero'">With Balance Not Zero</option>
+                                    <option value="balance_non_zero" t-att-selected="state.filters.displayAccounts === 'balance_non_zero'">With Ending Balance Not Zero</option>
+                                    <option value="all"              t-att-selected="state.filters.displayAccounts === 'all'">All Accounts</option>
+                                </select>
+                                <span class="tb_select_arrow">▾</span>
+                            </div>
+                        </div>
+                        <div class="tb_filter_field">
+                            <label class="tb_filter_label">Account Group</label>
+                            <div class="tb_select_wrapper">
+                                <select class="tb_select" t-on-change="(ev) => this.onFilterChange('selectedGroup', ev)">
+                                    <option value="all">All Groups</option>
+                                    <t t-foreach="state.groups" t-as="grp" t-key="grp.id">
+                                        <option t-att-value="grp.id"
+                                                t-att-selected="state.filters.selectedGroup === grp.id"
+                                                t-esc="grp.name"/>
+                                    </t>
+                                </select>
+                                <span class="tb_select_arrow">▾</span>
+                            </div>
+                        </div>
+                        <div class="tb_filter_field">
+                            <label class="tb_filter_label">Compare Date From</label>
+                            <input type="date" class="tb_filter_input tb_date_input"
+                                   t-att-value="state.filters.compareDateFrom"
+                                   t-on-change="(ev) => this.onFilterChange('compareDateFrom', ev)"/>
+                        </div>
+                        <div class="tb_filter_field">
+                            <label class="tb_filter_label">Compare Date To</label>
+                            <input type="date" class="tb_filter_input tb_date_input"
+                                   t-att-value="state.filters.compareDateTo"
+                                   t-on-change="(ev) => this.onFilterChange('compareDateTo', ev)"/>
+                        </div>
+                    </div>
+
+                    <!-- Row 3: Multi-selects -->
+                    <div class="tb_filter_row tb_filter_row_multi">
+                        <div class="tb_filter_field">
+                            <label class="tb_filter_label">Accounts</label>
+                            <select class="tb_select tb_multi_select" multiple="multiple"
+                                    t-on-change="(ev) => this.onMultiSelectChange('selectedAccounts', ev)">
+                                <t t-foreach="state.accounts" t-as="acc" t-key="acc.id">
+                                    <option t-att-value="acc.id">
+                                        <t t-esc="acc.code"/> - <t t-esc="acc.name"/>
+                                    </option>
+                                </t>
+                            </select>
+                        </div>
+                        <div class="tb_filter_field">
+                            <label class="tb_filter_label">Journals</label>
+                            <select class="tb_select tb_multi_select" multiple="multiple"
+                                    t-on-change="(ev) => this.onMultiSelectChange('selectedJournals', ev)">
+                                <t t-foreach="state.journals" t-as="jnl" t-key="jnl.id">
+                                    <option t-att-value="jnl.id" t-esc="jnl.name"/>
+                                </t>
+                            </select>
+                        </div>
+                        <div class="tb_filter_field">
+                            <label class="tb_filter_label">Partners</label>
+                            <select class="tb_select tb_multi_select" multiple="multiple"
+                                    t-on-change="(ev) => this.onMultiSelectChange('selectedPartners', ev)">
+                                <t t-foreach="state.partners" t-as="prt" t-key="prt.id">
+                                    <option t-att-value="prt.id" t-esc="prt.name"/>
+                                </t>
+                            </select>
+                        </div>
+                        <div class="tb_filter_field">
+                            <label class="tb_filter_label">Account Tags</label>
+                            <select class="tb_select tb_multi_select" multiple="multiple"
+                                    t-on-change="(ev) => this.onMultiSelectChange('selectedTags', ev)">
+                                <t t-foreach="state.accountTags" t-as="tag" t-key="tag.id">
+                                    <option t-att-value="tag.id" t-esc="tag.name"/>
+                                </t>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="tb_filter_actions">
+                        <button class="tb_btn tb_btn_reset"  t-on-click="resetFilters">↺ Reset</button>
+                        <button class="tb_btn tb_btn_cancel" t-on-click="closeFilters">Cancel</button>
+                        <button class="tb_btn tb_btn_apply"  t-on-click="applyFilters">Apply Filters</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ── Loading ──────────────────────────────── -->
+            <t t-if="state.loading">
+                <div class="tb_loading">
+                    <div class="tb_spinner"></div>
+                    <span>Loading Trial Balance...</span>
+                </div>
+            </t>
+
+            <!-- ── Table ────────────────────────────────── -->
+            <t t-else="">
+                <div class="tb_table_wrapper">
+                    <table class="tb_table">
+                        <thead>
+                            <tr class="tb_thead_groups">
+                                <th rowspan="2" class="tb_th_account_group">Account Group</th>
+                                <th rowspan="2" class="tb_th_accounts">Accounts</th>
+                                <th colspan="2" class="tb_th_section tb_section_initial">Initial Balance</th>
+                                <th colspan="2" class="tb_th_section tb_section_ytd">This Financial Year</th>
+                                <th colspan="2" class="tb_th_section tb_section_ending">Ending Balance</th>
+                            </tr>
+                            <tr class="tb_thead_cols">
+                                <th class="tb_th_amount">Debit</th>
+                                <th class="tb_th_amount">Credit</th>
+                                <th class="tb_th_amount">Debit</th>
+                                <th class="tb_th_amount">Credit</th>
+                                <th class="tb_th_amount">Debit</th>
+                                <th class="tb_th_amount">Credit</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <t t-if="state.lines.length === 0">
+                                <tr>
+                                    <td colspan="8" class="tb_empty">No accounts found for the selected filters.</td>
+                                </tr>
+                            </t>
+                            <t t-foreach="Object.entries(groupedLines)" t-as="entry" t-key="entry[0]">
+                                <t t-set="groupName"  t-value="entry[0]"/>
+                                <t t-set="groupLines" t-value="entry[1]"/>
+                                <t t-set="totals"     t-value="groupTotals[groupName]"/>
+                                <t t-set="isExpanded" t-value="state.expandedGroups[groupName]"/>
+
+                                <!-- Group Header -->
+                                <tr class="tb_group_row" t-on-click="() => this.toggleGroup(groupName)">
+                                    <td colspan="8" class="tb_group_cell">
+                                        <span class="tb_group_toggle">
+                                            <t t-if="isExpanded">▾</t><t t-else="">▸</t>
+                                        </span>
+                                        <span class="tb_group_name" t-esc="groupName"/>
+                                        <span class="tb_group_count" t-esc="'(' + groupLines.length + ' accounts)'"/>
+                                    </td>
+                                </tr>
+
+                                <!-- Account Lines -->
+                                <t t-if="isExpanded">
+                                    <t t-foreach="groupLines" t-as="line" t-key="line.id">
+                                        <tr class="tb_account_row">
+                                            <td class="tb_td_group_label" t-esc="groupName"/>
+                                            <td class="tb_td_account">
+                                                <span class="tb_acc_code" t-esc="line.code"/>
+                                                <span class="tb_acc_name" t-esc="line.name"/>
+                                                <button class="tb_journal_btn"
+                                                        t-on-click.stop="() => this.openJournalItems(line)"
+                                                        title="View Journal Items">
+                                                    Journal Items
+                                                </button>
+                                            </td>
+                                            <td class="tb_td_amount" t-esc="formatAmount(line.initialDebit)"/>
+                                            <td class="tb_td_amount" t-esc="formatAmount(line.initialCredit)"/>
+                                            <td class="tb_td_amount" t-esc="formatAmount(line.ytdDebit)"/>
+                                            <td class="tb_td_amount" t-esc="formatAmount(line.ytdCredit)"/>
+                                            <td class="tb_td_amount" t-esc="formatAmount(line.endingDebit)"/>
+                                            <td class="tb_td_amount" t-esc="formatAmount(line.endingCredit)"/>
+                                        </tr>
+                                    </t>
+                                </t>
+
+                                <!-- Group Total -->
+                                <tr class="tb_total_row">
+                                    <td colspan="2" class="tb_td_total_label">Total: <t t-esc="groupName"/></td>
+                                    <td class="tb_td_total_amount" t-esc="formatAmount(totals.initialDebit)"/>
+                                    <td class="tb_td_total_amount" t-esc="formatAmount(totals.initialCredit)"/>
+                                    <td class="tb_td_total_amount" t-esc="formatAmount(totals.ytdDebit)"/>
+                                    <td class="tb_td_total_amount" t-esc="formatAmount(totals.ytdCredit)"/>
+                                    <td class="tb_td_total_amount" t-esc="formatAmount(totals.endingDebit)"/>
+                                    <td class="tb_td_total_amount" t-esc="formatAmount(totals.endingCredit)"/>
+                                </tr>
+                            </t>
+                        </tbody>
+                        <tfoot>
+                            <tr class="tb_grand_total_row">
+                                <td colspan="2" class="tb_td_grand_label">Grand Total</td>
+                                <td class="tb_td_grand_amount" t-esc="formatAmount(grandTotal.initialDebit)"/>
+                                <td class="tb_td_grand_amount" t-esc="formatAmount(grandTotal.initialCredit)"/>
+                                <td class="tb_td_grand_amount" t-esc="formatAmount(grandTotal.ytdDebit)"/>
+                                <td class="tb_td_grand_amount" t-esc="formatAmount(grandTotal.ytdCredit)"/>
+                                <td class="tb_td_grand_amount" t-esc="formatAmount(grandTotal.endingDebit)"/>
+                                <td class="tb_td_grand_amount" t-esc="formatAmount(grandTotal.endingCredit)"/>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </t>
+
+            <!-- ── Journal Items Popup ─────────────────── -->
+            <t t-if="state.popup.show">
+                <div class="tb_popup_overlay" t-on-click="closePopup">
+                    <div class="tb_popup" t-on-click.stop="() => {}">
+                        <div class="tb_popup_header">
+                            <div class="tb_popup_title">
+                                <span class="tb_popup_icon">📋</span>
+                                Journal Items
+                                <span class="tb_popup_acc" t-esc="state.popup.accountName"/>
+                            </div>
+                            <button class="tb_popup_close" t-on-click="closePopup">✕</button>
+                        </div>
+
+                        <t t-if="state.popup.loading">
+                            <div class="tb_popup_loading">
+                                <div class="tb_spinner"></div>
+                                <span>Loading journal items...</span>
+                            </div>
+                        </t>
+
+                        <t t-else="">
+                            <t t-if="state.popup.lines.length === 0">
+                                <div class="tb_popup_empty">No journal items found for this period.</div>
+                            </t>
+                            <t t-else="">
+                                <div class="tb_popup_table_wrap">
+                                    <table class="tb_popup_table">
+                                        <thead>
+                                            <tr>
+                                                <th>Date</th>
+                                                <th>Journal Entry</th>
+                                                <th>Journal</th>
+                                                <th>Partner</th>
+                                                <th>Label</th>
+                                                <th class="tb_th_r">Debit</th>
+                                                <th class="tb_th_r">Credit</th>
+                                                <th class="tb_th_r">Balance</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <t t-set="running" t-value="0"/>
+                                            <t t-foreach="state.popup.lines" t-as="jl" t-key="jl.id">
+                                                <t t-set="running" t-value="running + jl.debit - jl.credit"/>
+                                                <tr class="tb_popup_row">
+                                                    <td t-esc="jl.date"/>
+
+                                                    <!-- ✦ CLICKABLE: opens the account.move form view -->
+                                                    <td>
+                                                        <t t-if="jl.move_id">
+                                                            <span class="tb_popup_move_link"
+                                                                  t-on-click="() => this.openMoveForm(jl.move_id[0])"
+                                                                  t-esc="jl.move_id[1]"/>
+                                                        </t>
+                                                        <t t-else="">—</t>
+                                                    </td>
+
+                                                    <td>
+                                                        <t t-esc="jl.journal_id and jl.journal_id[1] or ''"/>
+                                                    </td>
+                                                    <td>
+                                                        <t t-esc="jl.partner_id and jl.partner_id[1] or ''"/>
+                                                    </td>
+                                                    <td t-esc="jl.name or ''"/>
+                                                    <td class="tb_popup_debit">
+                                                        <t t-if="jl.debit"><t t-esc="jl.debit.toFixed(3)"/> BD</t>
+                                                        <t t-else="">—</t>
+                                                    </td>
+                                                    <td class="tb_popup_credit">
+                                                        <t t-if="jl.credit"><t t-esc="jl.credit.toFixed(3)"/> BD</t>
+                                                        <t t-else="">—</t>
+                                                    </td>
+                                                    <td t-att-class="running >= 0 ? 'tb_popup_bal_dr' : 'tb_popup_bal_cr'">
+                                                        <t t-esc="running.toFixed(3)"/> BD
+                                                    </td>
+                                                </tr>
+                                            </t>
+                                        </tbody>
+                                        <tfoot>
+                                            <tr class="tb_popup_total">
+                                                <td colspan="5">Total</td>
+                                                <td class="tb_popup_debit">
+                                                    <t t-esc="state.popup.lines.reduce((s,l) => s+l.debit, 0).toFixed(3)"/> BD
+                                                </td>
+                                                <td class="tb_popup_credit">
+                                                    <t t-esc="state.popup.lines.reduce((s,l) => s+l.credit, 0).toFixed(3)"/> BD
+                                                </td>
+                                                <td/>
+                                            </tr>
+                                        </tfoot>
+                                    </table>
+                                </div>
+                                <div class="tb_popup_footer">
+                                    <span class="tb_popup_count">
+                                        <t t-esc="state.popup.lines.length"/> items
+                                        <t t-if="state.popup.lines.length === 500"> (limit 500 — use filters to narrow)</t>
+                                    </span>
+                                    <button class="tb_btn tb_btn_cancel" t-on-click="closePopup">Close</button>
+                                </div>
+                            </t>
+                        </t>
+                    </div>
+                </div>
+            </t>
+
+        </div>
+    </t>
+</templates>

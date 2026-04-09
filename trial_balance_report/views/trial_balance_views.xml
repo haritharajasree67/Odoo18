@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Client Action for Dynamic Report -->
+    <record id="action_trial_balance_report_client" model="ir.actions.client">
+        <field name="name">Trial Balance Report</field>
+        <field name="tag">trial_balance_dynamic_report</field>
+    </record>
+
+
+</odoo>
